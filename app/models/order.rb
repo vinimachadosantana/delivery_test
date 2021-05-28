@@ -2,11 +2,15 @@
 
 class Order < ApplicationRecord
   has_one :customer
+  has_one :address
   has_many :items
   has_many :payments
 
   accepts_nested_attributes_for :customer
   validates_associated :customer
+
+  accepts_nested_attributes_for :address
+  validates_associated :address
 
   accepts_nested_attributes_for :items
   validates_associated :items
@@ -19,13 +23,6 @@ class Order < ApplicationRecord
             :sub_total,
             :delivery_fee,
             :total,
-            :country,
-            :state,
-            :city,
-            :district,
-            :street,
-            :latitude,
-            :longitude,
             :dt_order_create,
             :postal_code,
             :number, presence: true
