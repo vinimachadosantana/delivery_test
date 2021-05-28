@@ -10,10 +10,25 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_05_26_000744) do
+ActiveRecord::Schema.define(version: 2021_05_28_222414) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "addresses", force: :cascade do |t|
+    t.string "country"
+    t.string "state"
+    t.string "city"
+    t.string "district"
+    t.string "street"
+    t.string "complement"
+    t.float "latitude"
+    t.float "longitude"
+    t.bigint "order_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["order_id"], name: "index_addresses_on_order_id"
+  end
 
   create_table "customers", force: :cascade do |t|
     t.string "external_id"
@@ -44,14 +59,6 @@ ActiveRecord::Schema.define(version: 2021_05_26_000744) do
     t.string "sub_total"
     t.string "delivery_fee"
     t.string "total"
-    t.string "country"
-    t.string "state"
-    t.string "city"
-    t.string "district"
-    t.string "street"
-    t.string "complement"
-    t.decimal "latitude", precision: 10, scale: 6
-    t.decimal "longitude", precision: 10, scale: 6
     t.string "dt_order_create"
     t.string "postal_code"
     t.string "number"
@@ -69,6 +76,7 @@ ActiveRecord::Schema.define(version: 2021_05_26_000744) do
     t.index ["order_id"], name: "index_payments_on_order_id"
   end
 
+  add_foreign_key "addresses", "orders"
   add_foreign_key "customers", "orders"
   add_foreign_key "items", "orders"
   add_foreign_key "payments", "orders"
