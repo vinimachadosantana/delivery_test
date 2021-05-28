@@ -30,18 +30,11 @@ class Api::V1::OrdersController < ApplicationController
       sub_total: sub_total,
       delivery_fee: order_params["total_shipping"].to_s,
       total: order_params["total_amount_with_shipping"].to_s,
-      country: country,
-      state: order_params["shipping"]["receiver_address"]["state"]["id"],
-      city: order_params["shipping"]["receiver_address"]["city"]["name"],
-      district: order_params["shipping"]["receiver_address"]["neighborhood"]["name"],
-      street: order_params["shipping"]["receiver_address"]["street_name"],
-      complement: order_params["shipping"]["receiver_address"]["comment"],
-      latitude: order_params["shipping"]["receiver_address"]["latitude"],
-      longitude: order_params["shipping"]["receiver_address"]["longitude"],
       dt_order_create: order_params["date_created"],
       postal_code: order_params["shipping"]["receiver_address"]["zip_code"],
       number: order_params["shipping"]["receiver_address"]["street_number"],
-      customer_attributes:customer_block,
+      address_attributes: address_blok,
+      customer_attributes: customer_block,
       items_attributes: items_block,
       payments_attributes: payments_block
     }
@@ -76,6 +69,19 @@ class Api::V1::OrdersController < ApplicationController
     payload.deep_transform_keys! do |key|
       key.to_s.gsub("attributes", "").camelize(:lower)
     end
+  end
+
+  def address_blok
+    {
+      country: country,
+      state: order_params["shipping"]["receiver_address"]["state"]["id"],
+      city: order_params["shipping"]["receiver_address"]["city"]["name"],
+      district: order_params["shipping"]["receiver_address"]["neighborhood"]["name"],
+      street: order_params["shipping"]["receiver_address"]["street_name"],
+      complement: order_params["shipping"]["receiver_address"]["comment"],
+      latitude: order_params["shipping"]["receiver_address"]["latitude"],
+      longitude: order_params["shipping"]["receiver_address"]["longitude"]
+    }
   end
 
   def customer_block
