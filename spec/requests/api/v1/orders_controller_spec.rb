@@ -34,6 +34,10 @@ describe Api::V1::OrdersController, type: :request do
       it "create new payment" do
         expect(Payment.count).to eq(1)
       end
+
+      it "create new address" do
+        expect(Address.count).to eq(1)
+      end
     end
 
     context "when it fails validations" do
