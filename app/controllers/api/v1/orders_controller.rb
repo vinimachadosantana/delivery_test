@@ -4,11 +4,9 @@ class Api::V1::OrdersController < ApplicationController
   before_action :create_order
 
   def create
-    @builder = payload_to_camel_case
+    render status: :not_found if order_params.blank?
 
-    if order_params.blank?
-      render status: :not_found
-    end
+    @builder = payload_to_camel_case
 
     if ProcessOrderService.call(@builder)
       render status: :accepted
@@ -33,7 +31,7 @@ class Api::V1::OrdersController < ApplicationController
       dt_order_create: order_params["date_created"],
       postal_code: order_params["shipping"]["receiver_address"]["zip_code"],
       number: order_params["shipping"]["receiver_address"]["street_number"],
-      address_attributes: address_blok,
+      address_attributes: address_block,
       customer_attributes: customer_block,
       items_attributes: items_block,
       payments_attributes: payments_block
@@ -54,6 +52,34 @@ class Api::V1::OrdersController < ApplicationController
     "BR"
   end
 
+  def state
+    order_params["shipping"]["receiver_address"]["state"]["id"]
+  end
+
+  def city
+    order_params["shipping"]["receiver_address"]["city"]["name"]
+  end
+
+  def district
+    order_params["shipping"]["receiver_address"]["neighborhood"]["name"]
+  end
+
+  def street
+    order_params["shipping"]["receiver_address"]["street_name"]
+  end
+
+  def complement
+    order_params["shipping"]["receiver_address"]["comment"]
+  end
+
+  def latitude
+    order_params["shipping"]["receiver_address"]["latitude"]
+  end
+
+  def longitude
+    order_params["shipping"]["receiver_address"]["longitude"]
+  end
+
   def create_order
     attributes = payload
     attributes[:items_attributes].map! { |hash| hash&.except!('sub_items') }
@@ -71,17 +97,19 @@ class Api::V1::OrdersController < ApplicationController
     end
   end
 
-  def address_blok
+  def address_block
     {
-      country: country,
-      state: order_params["shipping"]["receiver_address"]["state"]["id"],
-      city: order_params["shipping"]["receiver_address"]["city"]["name"],
-      district: order_params["shipping"]["receiver_address"]["neighborhood"]["name"],
-      street: order_params["shipping"]["receiver_address"]["street_name"],
-      complement: order_params["shipping"]["receiver_address"]["comment"],
-      latitude: order_params["shipping"]["receiver_address"]["latitude"],
-      longitude: order_params["shipping"]["receiver_address"]["longitude"]
+      "country" => country,
+      "state" => state,
+      "city" => city,
+      "district" => district,
+      "street" => street,
+      "complement" => complement,
+      "latitude" => latitude,
+      "longitude" => longitude
     }
+  rescue NoMethodError
+    {}
   end
 
   def customer_block
