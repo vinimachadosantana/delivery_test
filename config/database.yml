@@ -8,12 +8,12 @@ default: &default
 
 development:
   <<: *default
-  database: delivery_ruby_development
+  database: delivery_test_development
 
 test:
   <<: *default
-  database: delivery_ruby_test
+  database: delivery_test_test
 
 production:
   <<: *default
-  database: delivery_ruby_production
+  database: delivery_test_production
