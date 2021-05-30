@@ -1,25 +1,25 @@
 # frozen_string_literal: true
 
 class ProcessOrderService < BaseService
-  URL = URI(ENV["API_URL"]).freeze
+  URL = URI(ENV['API_URL']).freeze
 
-  def initialize(get_token: GenerateTokenService)
-    @get_token = get_token.call
+  def initialize(get_token: GenerateTokenService.call)
+    @get_token = get_token
   end
 
   def call(payload)
     response = connection.request(request(payload))
 
-    response.code == "200"
+    response.code == '200'
   end
 
   private
 
   def request(body)
     req = Net::HTTP::Post.new(URL.path)
-    req["Content-Type"] = "application/json"
-    req["X-Sent"] = Time.zone.now.strftime("%Hh%M - %d/%m/%y")
-    req["Authorization"] = @get_token
+    req['Content-Type'] = 'application/json'
+    req['X-Sent'] = Time.zone.now.strftime('%Hh%M - %d/%m/%y')
+    req['Authorization'] = @get_token
     req.body = body
     req
   end

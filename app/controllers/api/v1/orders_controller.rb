@@ -6,7 +6,7 @@ class Api::V1::OrdersController < ApplicationController
   def create
     render status: :not_found if order_params.blank?
 
-    @builder = payload_to_camel_case
+    @builder = camel_case_payload.to_json
 
     if ProcessOrderService.call(@builder)
       render status: :accepted
@@ -17,67 +17,64 @@ class Api::V1::OrdersController < ApplicationController
 
   private
 
-  def payload_to_camel_case
-    camel_case_payload.merge!({ total_shipping: total_shipping }).to_json
-  end
-
   def payload
     {
-      external_code: order_params["id"].to_s,
-      store_id: order_params["store_id"],
+      external_code: order_params['id'].to_s,
+      store_id: order_params['store_id'],
       sub_total: sub_total,
-      delivery_fee: order_params["total_shipping"].to_s,
-      total: order_params["total_amount_with_shipping"].to_s,
-      dt_order_create: order_params["date_created"],
-      postal_code: order_params["shipping"]["receiver_address"]["zip_code"],
-      number: order_params["shipping"]["receiver_address"]["street_number"],
+      delivery_fee: order_params['total_shipping'].to_s,
+      total: order_params['total_amount_with_shipping'].to_s,
+      dt_order_create: order_params['date_created'],
+      postal_code: order_params['shipping']['receiver_address']['zip_code'],
+      number: order_params['shipping']['receiver_address']['street_number'],
+      total_shipping: total_shipping,
       address_attributes: address_block,
       customer_attributes: customer_block,
       items_attributes: items_block,
       payments_attributes: payments_block
     }
-  rescue
+  rescue StandardError
     {}
   end
 
   def sub_total
-    format("%<total>.2f", total: order_params["total_amount"])
-  rescue
+    format('%<total>.2f', total: order_params['total_amount'])
+  rescue StandardError
     0.0
   end
 
   def country
-    order_params["shipping"]["receiver_address"]["country"]["id"]
-  rescue
-    "BR"
+    order_params['shipping']['receiver_address']['country']['id']
+  rescue StandardError
+    'BR'
   end
 
   def state
-    order_params["shipping"]["receiver_address"]["state"]["id"]
+    order_params['shipping']['receiver_address']['state']['id']
   end
 
   def city
-    order_params["shipping"]["receiver_address"]["city"]["name"]
+    order_params['shipping']['receiver_address']['city']['name']
   end
 
   def district
-    order_params["shipping"]["receiver_address"]["neighborhood"]["name"]
+    order_params['shipping']['receiver_address']['neighborhood']['name']
   end
 
   def street
-    order_params["shipping"]["receiver_address"]["street_name"]
+    order_params['shipping']['receiver_address']['street_name']
   end
 
   def complement
-    order_params["shipping"]["receiver_address"]["comment"]
+    order_params['shipping']['receiver_address']['comment']
   end
 
   def latitude
-    order_params["shipping"]["receiver_address"]["latitude"]
+    order_params['shipping']['receiver_address']['latitude']
   end
 
   def longitude
-    order_params["shipping"]["receiver_address"]["longitude"]
+    order_params['shipping']['receiver_address']['longitude']
   end
 
   def create_order
@@ -93,48 +90,52 @@ class Api::V1::OrdersController < ApplicationController
 
   def camel_case_payload
     payload.deep_transform_keys! do |key|
-      key.to_s.gsub("attributes", "").camelize(:lower)
+      if key == :total_shipping
+        key.to_s.gsub('attributes', '')
+      else
+        key.to_s.gsub('attributes', '').camelize(:lower)
+      end
     end
   end
 
   def address_block
     {
-      "country" => country,
-      "state" => state,
-      "city" => city,
-      "district" => district,
-      "street" => street,
-      "complement" => complement,
-      "latitude" => latitude,
-      "longitude" => longitude
+      'country' => country,
+      'state' => state,
+      'city' => city,
+      'district' => district,
+      'street' => street,
+      'complement' => complement,
+      'latitude' => latitude,
+      'longitude' => longitude
     }
   rescue NoMethodError
     {}
   end
 
   def customer_block
-    buyer = order_params["buyer"]
-    buyer_phone = order_params["buyer"]["phone"]
+    buyer = order_params['buyer']
+    buyer_phone = order_params['buyer']['phone']
 
     {
-      "external_code" => buyer["id"].to_s,
-      "name" => buyer["nickname"].to_s,
-      "email" => buyer["email"].to_s,
-      "contact" => "#{buyer_phone["area_code"]}#{buyer_phone["number"]}"
+      'external_code' => buyer['id'].to_s,
+      'name' => buyer['nickname'].to_s,
+      'email' => buyer['email'].to_s,
+      'contact' => "#{buyer_phone['area_code']}#{buyer_phone['number']}"
     }
   rescue NoMethodError
     {}
   end
 
   def items_block
-    order_params["order_items"].map do |item|
+    order_params['order_items'].map do |item|
       {
-        "external_code" => item["item"]["id"],
-        "name" => item["item"]["title"],
-        "price" => item["full_unit_price"],
-        "quantity" => item["quantity"],
-        "total" => item["unit_price"].to_f * item["quantity"].to_i,
-        "sub_items" => []
+        'external_code' => item['item']['id'],
+        'name' => item['item']['title'],
+        'price' => item['full_unit_price'],
+        'quantity' => item['quantity'],
+        'total' => item['unit_price'].to_f * item['quantity'].to_i,
+        'sub_items' => []
       }
     end
   rescue NoMethodError
@@ -142,10 +143,10 @@ class Api::V1::OrdersController < ApplicationController
   end
 
   def payments_block
-    order_params["payments"].map do |payment|
+    order_params['payments'].map do |payment|
       {
-        "type" => payment["payment_type"].upcase,
-        "value" => payment["total_paid_amount"]
+        'type' => payment['payment_type'].upcase,
+        'value' => payment['total_paid_amount']
       }
     end
   rescue NoMethodError
@@ -153,6 +154,6 @@ class Api::V1::OrdersController < ApplicationController
   end
 
   def total_shipping
-    order_params["total_shipping"] || 0.0
+    order_params['total_shipping'] || 0.0
   end
 end

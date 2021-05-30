@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class GenerateTokenService < BaseService
-  TOKEN_URL = URI(ENV["API_URL_TOKEN"]).freeze
+  TOKEN_URL = URI(ENV['API_URL_TOKEN']).freeze
 
   def call
     JSON.parse(request.body)['token'].chomp
@@ -21,7 +21,6 @@ class GenerateTokenService < BaseService
   end
 
   def get
-    req = Net::HTTP::Get.new(TOKEN_URL.request_uri)
-    req
+    Net::HTTP::Get.new(TOKEN_URL.request_uri)
   end
 end

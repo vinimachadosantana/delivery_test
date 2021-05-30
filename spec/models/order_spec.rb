@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require "rails_helper"
+require 'rails_helper'
 
 RSpec.describe Order, type: :model do
-  describe "associations" do
+  describe 'associations' do
     it { is_expected.to have_one(:customer) }
     it { is_expected.to have_one(:address) }
     it { is_expected.to have_many(:items) }
@@ -15,7 +15,7 @@ RSpec.describe Order, type: :model do
     it { is_expected.to accept_nested_attributes_for(:payments) }
   end
 
-  describe "validations" do
+  describe 'validations' do
     it { is_expected.to validate_presence_of(:external_code) }
     it { is_expected.to validate_presence_of(:store_id) }
     it { is_expected.to validate_presence_of(:sub_total) }
