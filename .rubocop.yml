@@ -1,0 +1,37 @@
+AllCops:
+  TargetRubyVersion: 2.7.1
+  Exclude:
+    - 'app/channels/**/*'
+    - 'bin/**/*'
+    - 'db/**/*'
+    - 'config/**/*'
+  NewCops: enable
+
+Lint/MissingSuper:
+  Exclude:
+    - 'app/services/**/*'
+
+Metrics/MethodLength:
+  Max: 35
+  Exclude:
+    - app/controllers/api/v1/orders_controller.rb
+
+Metrics/BlockLength:
+  Enabled: true
+  Exclude:
+    - spec/**/*
+
+Metrics/ClassLength:
+  Exclude:
+    - app/controllers/api/v1/orders_controller.rb
+
+Metrics/AbcSize:
+  Enabled: true
+  Exclude:
+    - app/controllers/api/v1/orders_controller.rb
+
+Style/Documentation:
+  Enabled: false
+
+Style/ClassAndModuleChildren:
+  EnforcedStyle: compact
